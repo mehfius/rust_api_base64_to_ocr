@@ -98,12 +98,12 @@ async fn ocr_handler(input: Option<web::Json<ImageInput>>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
-    println!("Servidor rodando em http://127.0.0.1:8080");
+    println!("Servidor rodando em http://0.0.0.0:5000");
     HttpServer::new(|| {
         App::new()
             .service(ocr_handler)
     })
-    .bind("127.0.0.1:8080")?
+    .bind("0.0.0.0:5000")?
     .run()
     .await
 }

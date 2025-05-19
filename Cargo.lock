@@ -938,18 +938,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "image_to_text"
-version = "0.1.0"
-dependencies = [
- "actix-web",
- "base64 0.21.7",
- "image",
- "rusty-tesseract",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "imgref"
 version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1564,6 +1552,18 @@ name = "rgb"
 version = "0.8.50"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57397d16646700483b67d2dd6511d79318f9d057fdbd21a4066aeac8b41d310a"
+
+[[package]]
+name = "rust_api_base64_to_ocr"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "base64 0.21.7",
+ "image",
+ "rusty-tesseract",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "rustc-demangle"
