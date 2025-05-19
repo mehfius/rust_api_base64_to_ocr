@@ -1,26 +1,39 @@
-use std::collections::HashMap;
-// 1) Use `image::ImageReader` em vez de `image::io::Reader`.
-use image::ImageReader;
+// src/main.rs
+
+use base64::{engine::general_purpose, Engine as _};
+use image::load_from_memory;
 use rusty_tesseract::{Image, Args, image_to_string};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 2) Carrega e decodifica a imagem corretamente
-    let dyn_img = ImageReader::open("./img/imagem.png")?
-        .decode()?;
+/// Recebe uma string Base64 e retorna o texto extraído por OCR.
+fn extract_text_from_base64(base64_data: &str) -> Result<String, Box<dyn std::error::Error>> {
+    // Decodifica Base64 usando o Engine recomendado
+    let image_bytes = general_purpose::STANDARD.decode(base64_data)?;
+    
+    // Carrega a imagem diretamente da memória
+    let dyn_img = load_from_memory(&image_bytes)?;
     let img = Image::from_dynamic_image(&dyn_img)?;
-
-    // 3) Constrói `Args`, convertendo "por" em String
+    
+    // Configurações de OCR
     let args = Args {
-        lang: "por".to_string(),             // <-- aqui
+        lang: "por".to_string(),
         dpi: Some(300),
         psm: Some(6),
         oem: Some(3),
-        config_variables: HashMap::new(),
+        config_variables: Default::default(),
     };
-
-    // 4) Executa o OCR
+    
+    // Executa o Tesseract e retorna o texto
     let texto = image_to_string(&img, &args)?;
-    println!("Texto extraído: {}", texto);
+    Ok(texto)
+}
 
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Exemplo de input Base64 (substitua pela sua string real)
+    let base64_data = "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"; 
+    
+    // Extrai e imprime o texto
+    let resultado = extract_text_from_base64(base64_data)?;
+    println!("Texto extraído: {}", resultado);
+    
     Ok(())
 }
