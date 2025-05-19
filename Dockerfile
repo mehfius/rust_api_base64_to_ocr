@@ -41,8 +41,8 @@ COPY --from=builder /usr/src/rust_api_base64_to_ocr/target/release/rust_api_base
 COPY --from=builder /GIT_COMMIT_ID.txt /GIT_COMMIT_DATE.txt /GIT_COMMIT_MESSAGE.txt /opt/git-info/
 
 
-# Expor a porta 8080
-EXPOSE 8080
+# Expor a porta 5000
+EXPOSE 5000
 
 # Comando para executar o servidor + exibir versão Git ao iniciar
 CMD echo "Git Commit ID: $(cat /opt/git-info/GIT_COMMIT_ID.txt)"; \
