@@ -14,7 +14,13 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /usr/src/rust_api_base64_to_ocr
 
 # Clonar o repositório do GitHub
-RUN git clone https://github.com/mehfius/rust_api_base64_to_ocr.git  .
+RUN echo "🔄 Buscando a última versão do repositório..." && \
+    git clone https://github.com/mehfius/rust_api_base64_to_ocr.git  . && \
+    cd rust_api_base64_to_ocr && \
+    git fetch origin && \
+    git reset && \
+    git pull origin main || git pull origin master
+
 
 # Exibir informações do commit mais recente
 RUN git log -1 --format=%H > /GIT_COMMIT_ID.txt && \
