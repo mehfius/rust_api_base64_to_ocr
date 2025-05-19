@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  rust_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - RUST_LOG=info
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    container_name: rust_api_base64_to_ocr
