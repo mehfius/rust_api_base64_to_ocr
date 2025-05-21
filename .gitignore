@@ -1,2 +1,7 @@
 /target/
-.lock
+!/target/
+/target/*
+!/target/release/
+/target/release/*
+!/target/release/rust_api_base64_to_ocr
+*.lock

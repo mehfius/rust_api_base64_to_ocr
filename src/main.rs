@@ -7,43 +7,35 @@ use std::io;
 use std::collections::HashMap;
 use std::time::Instant;
 
-/// Estrutura para desserializar o JSON do POST
 #[derive(Deserialize)]
 struct ImageInput {
     base64: String,
 }
 
-/// Limpa o texto removendo caracteres de controle como \n, \f, etc.
 fn clean_ocr_text(text: &str) -> String {
     text.chars()
-        .filter(|c| !c.is_control()) // Remove caracteres de controle (inclui \n, \f)
+        .filter(|c| !c.is_control())
         .collect::<String>()
-        .trim() // Remove espaços em branco no início e fim
+        .trim()
         .to_string()
 }
 
-/// Recebe uma string Base64 e retorna o texto extraído por OCR junto com o tempo gasto.
 fn extract_text_from_base64(base64_data: &str) -> Result<(String, u128), Box<dyn std::error::Error>> {
     let start_time = Instant::now();
     
-    // Valida se a string Base64 é aproximadamente válida (tamanho e caracteres)
     if base64_data.is_empty() || base64_data.len() < 4 || !base64_data.chars().all(|c| c.is_ascii()) {
         return Err("String Base64 inválida".into());
     }
 
-    // Remove possíveis quebras de linha ou espaços da string Base64
     let cleaned_base64 = base64_data.replace("\n", "").replace("\r", "").replace(" ", "");
     
-    // Decodifica Base64 usando o Engine recomendado
     let image_bytes = general_purpose::STANDARD.decode(&cleaned_base64)?;
     
-    // Carrega a imagem diretamente da memória
     let dyn_img = load_from_memory(&image_bytes)?;
     let img = Image::from_dynamic_image(&dyn_img)?;
     
-    // Configurações de OCR
     let mut config_variables = HashMap::new();
-    config_variables.insert("tessedit_create_txt".to_string(), "1".to_string()); // Garante saída de texto puro
+    config_variables.insert("tessedit_create_txt".to_string(), "1".to_string());
     
     let args = Args {
         lang: "por".to_string(),
@@ -53,19 +45,15 @@ fn extract_text_from_base64(base64_data: &str) -> Result<(String, u128), Box<dyn
         config_variables,
     };
     
-    // Executa o Tesseract e retorna o texto
     let texto = image_to_string(&img, &args)?;
     
-    // Limpa o texto de caracteres indesejados
     let texto_limpo = clean_ocr_text(&texto);
     
-    // Calcula o tempo gasto em milissegundos
     let duration_ms = start_time.elapsed().as_millis();
     
     Ok((texto_limpo, duration_ms))
 }
 
-/// Endpoint POST para processar a imagem Base64 e retornar o texto OCR
 #[post("/ocr")]
 async fn ocr_handler(input: Option<web::Json<ImageInput>>) -> impl Responder {
     match input {
